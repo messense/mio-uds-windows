@@ -214,8 +214,8 @@ impl EchoClient {
         }
 
         if self.interest.is_readable() || self.interest.is_writable() {
-            try!(poll.reregister(&self.sock, self.token, self.interest,
-                                  PollOpt::edge() | PollOpt::oneshot()));
+            poll.reregister(&self.sock, self.token, self.interest,
+                            PollOpt::edge() | PollOpt::oneshot())?;
         }
 
         Ok(())

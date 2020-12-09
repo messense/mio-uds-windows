@@ -9,25 +9,24 @@ repository = "https://github.com/Azure/mio-uds-windows"
 # keywords = ""
 # categories = ""
 exclude = [".gitignore"]
+edition = "2018"
 
 [dependencies]
 iovec = "0.1.2"
 lazycell = "1"
 log = "0.4.5"
-mio = "0.6"
+mio = "0.7"
 
 [target.'cfg(windows)'.dependencies]
-kernel32-sys = "0.2.2"
-miow = "0.2.1"
-winapi = "0.2.8"
-ws2_32-sys = "0.2.1"
+miow = "0.3.6"
+winapi = { version = "0.3", features = ["ntdef", "ioapiset", "minwinbase", "winbase"] }
 
 [dev-dependencies]
-bytes = "0.3"
-env_logger = { version = "0.4", default-features = false }
+bytes = "0.6"
+env_logger = { version = "0.8", default-features = false }
 slab = "0.4"
 tempdir = "0.3"
-version-sync = "0.5"
+version-sync = "0.9"
 
 [[test]]
 name = "test"

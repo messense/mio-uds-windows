@@ -6,7 +6,7 @@ use std::os::raw::c_int;
 use std::os::windows::io::{AsRawSocket, FromRawSocket, IntoRawSocket, RawSocket};
 use std::path::Path;
 
-use ws2_32::{bind, connect, getpeername, getsockname, listen};
+use winapi::um::winsock2::{bind, connect, getpeername, getsockname, listen};
 
 use super::socket::{init, Socket};
 use super::{c, cvt, sockaddr_un, SocketAddr, from_sockaddr_un};

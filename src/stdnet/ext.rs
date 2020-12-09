@@ -10,19 +10,26 @@ use std::mem;
 use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
 use std::os::windows::prelude::*;
 
-use winapi::{c_int, u_long, BOOL, DWORD, FALSE, GUID, LPDWORD, LPINT, 
-    LPOVERLAPPED, LPSOCKADDR, OVERLAPPED, PVOID,
-    SIO_GET_EXTENSION_FUNCTION_POINTER, SOCKADDR, SOCKADDR_STORAGE, SOCKET,
-    SOCKET_ERROR, SOL_SOCKET, TRUE, WSA_IO_PENDING, WSABUF};
-use ws2_32::{bind, setsockopt, WSAGetLastError, WSAGetOverlappedResult,
-    WSAIoctl, WSARecv, WSASend};
+use winapi::ctypes::c_int;
+use winapi::shared::guiddef::GUID;
+use winapi::shared::minwindef::{BOOL, DWORD, FALSE, LPDWORD, LPINT, TRUE};
+use winapi::shared::ntdef::PVOID;
+use winapi::shared::ws2def::{
+    LPSOCKADDR, SIO_GET_EXTENSION_FUNCTION_POINTER, SOCKADDR, SOCKADDR_STORAGE, WSABUF,
+};
+use winapi::um::minwinbase::{LPOVERLAPPED, OVERLAPPED};
+use winapi::um::winsock2::u_long;
+use winapi::um::winsock2::{
+    bind, setsockopt, WSAGetLastError, WSAGetOverlappedResult, WSAIoctl, WSARecv, WSASend, SOCKET,
+    SOCKET_ERROR, SOL_SOCKET, WSA_IO_PENDING,
+};
 
 use super::{c, from_sockaddr_un, sun_path_offset, SocketAddr};
 use super::net::{UnixListener, UnixStream};
 
 /// A buffer in which an accepted socket's address will be stored
 ///
-/// This type is used with the `accept_overlapped` method on the 
+/// This type is used with the `accept_overlapped` method on the
 /// `UnixListenerExt` trait to provide space for the overlapped I/O operation to
 /// fill in the socket addresses upon completion.
 #[repr(C)]
@@ -448,7 +455,7 @@ unsafe fn connect_overlapped(socket: SOCKET,
                                                c_int, PVOID, DWORD, LPDWORD,
                                                LPOVERLAPPED) -> BOOL;
 
-    let ptr = try!(CONNECTEX.get(socket));
+    let ptr = CONNECTEX.get(socket)?;
     assert!(ptr != 0);
     let connect_ex = mem::transmute::<_, ConnectEx>(ptr);
 
@@ -484,7 +491,7 @@ impl UnixListenerExt for UnixListener {
                                                   DWORD, DWORD, DWORD, LPDWORD,
                                                   LPOVERLAPPED) -> BOOL;
 
-        let ptr = try!(ACCEPTEX.get(self.as_raw_socket() as SOCKET));
+        let ptr = ACCEPTEX.get(self.as_raw_socket() as SOCKET)?;
         assert!(ptr != 0);
         let accept_ex = mem::transmute::<_, AcceptEx>(ptr);
 
@@ -495,7 +502,7 @@ impl UnixListenerExt for UnixListener {
         let succeeded = if r == TRUE {
             true
         } else {
-            try!(last_err());
+            last_err()?;
             false
         };
         Ok(succeeded)
@@ -555,7 +562,7 @@ impl AcceptAddrsBuf {
             remote: 0 as *mut _, remote_len: 0,
             _data: self,
         };
-        let ptr = try!(GETACCEPTEXSOCKADDRS.get(socket.as_raw_socket() as SOCKET));
+        let ptr = GETACCEPTEXSOCKADDRS.get(socket.as_raw_socket() as SOCKET)?;
         assert!(ptr != 0);
         unsafe {
             let get_sockaddrs = mem::transmute::<_, GetAcceptExSockaddrs>(ptr);

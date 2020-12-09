@@ -7,15 +7,17 @@ use std::os::windows::io::{AsRawSocket, RawSocket};
 use std::sync::{Mutex, MutexGuard};
 
 use mio::{Evented, Ready, Registration, Poll, PollOpt, Token};
-use mio::windows::Overlapped;
+use miow::Overlapped;
 use miow::iocp::CompletionStatus;
-use winapi::{HANDLE, OVERLAPPED_ENTRY};
+use winapi::shared::ntdef::HANDLE;
+use winapi::um::minwinbase::OVERLAPPED_ENTRY;
 use iovec::IoVec;
+use log::trace;
 
-use net::{self, AcceptAddrsBuf, SocketAddr, UnixListenerExt, UnixStreamExt};
-use stdnet::Socket;
-use sys::windows::from_raw_arc::FromRawArc;
-use sys::windows::selector::ReadyBinding;
+use crate::net::{self, AcceptAddrsBuf, SocketAddr, UnixListenerExt, UnixStreamExt};
+use crate::stdnet::Socket;
+use crate::sys::windows::from_raw_arc::FromRawArc;
+use crate::sys::windows::selector::ReadyBinding;
 
 pub struct UnixStream {
     /// Separately stored implementation to ensure that the `Drop`

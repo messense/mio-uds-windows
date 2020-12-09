@@ -4,7 +4,8 @@ use std::sync::Mutex;
 
 use mio::{Evented, Poll, Ready, Registration, SetReadiness, Token, PollOpt};
 use mio::windows::Binding;
-use {poll};
+use log::trace;
+use crate::poll;
 
 /// Helper struct used for TCP and UDP which bundles a `binding` with a
 /// `SetReadiness` handle.
@@ -75,7 +76,7 @@ impl ReadyBinding {
     /// and otherwise just reassociates ourselves with the event loop to
     /// possible change tokens.
     pub fn register_socket(&mut self,
-                           socket: &AsRawSocket,
+                           socket: &dyn AsRawSocket,
                            poll: &Poll,
                            token: Token,
                            events: Ready,
@@ -95,7 +96,7 @@ impl ReadyBinding {
 
     /// Implementation of `Evented::reregister` function.
     pub fn reregister_socket(&mut self,
-                             socket: &AsRawSocket,
+                             socket: &dyn AsRawSocket,
                              poll: &Poll,
                              token: Token,
                              events: Ready,
@@ -117,7 +118,7 @@ impl ReadyBinding {
     /// Doesn't allow registration with another event loop, just shuts down
     /// readiness notifications and such.
     pub fn deregister(&mut self,
-                      socket: &AsRawSocket,
+                      socket: &dyn AsRawSocket,
                       poll: &Poll,
                       registration: &Mutex<Option<Registration>>)
                       -> io::Result<()> {

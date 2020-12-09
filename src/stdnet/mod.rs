@@ -5,8 +5,8 @@ use std::mem;
 use std::path::Path;
 use std::os::raw::{c_char, c_int};
 
-use winapi::SOCKADDR;
-use ws2_32::WSAGetLastError;
+use winapi::shared::ws2def::SOCKADDR;
+use winapi::um::winsock2::WSAGetLastError;
 
 mod ext;
 mod net;
@@ -15,9 +15,10 @@ mod socket;
 mod c {
     use std::ffi::CStr;
     use std::fmt;
-    use winapi::{self, ADDRESS_FAMILY, CHAR};
+    use winapi::shared::ws2def::ADDRESS_FAMILY;
+    use winapi::shared::ntdef::CHAR;
 
-    pub const AF_UNIX: ADDRESS_FAMILY = winapi::AF_UNIX as _;
+    pub const AF_UNIX: ADDRESS_FAMILY = winapi::shared::ws2def::AF_UNIX as _;
 
     #[allow(non_camel_case_types)]
     #[derive(Copy, Clone)]
@@ -213,10 +214,10 @@ impl SocketAddr {
     // TODO: Is this following section relevant on Windows? Removed from the
     //       docs for now...
     // Without a pathname:
-    // 
+    //
     // ```ignore
     // use std::os::windows::net::UnixDatagram;
-    // 
+    //
     // let socket = UnixDatagram::unbound().unwrap();
     // let addr = socket.local_addr().expect("Couldn't get local address");
     // assert_eq!(addr.as_pathname(), None);

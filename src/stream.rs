@@ -7,10 +7,10 @@ use std::path::Path;
 use iovec::IoVec;
 use mio::{Evented, Ready, Poll, PollOpt, Token};
 
-use net::{self, SocketAddr};
-use poll::SelectorId;
-use stdnet::{from_path, init, Socket};
-use sys;
+use crate::net::{self, SocketAddr};
+use crate::poll::SelectorId;
+use crate::stdnet::{from_path, init, Socket};
+use crate::sys;
 
 /// A Unix stream socket
 ///

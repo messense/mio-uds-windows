@@ -4,17 +4,17 @@ use std::path::Path;
 
 use mio::{Evented, Ready, Poll, PollOpt, Token};
 
-use net::{self, SocketAddr};
-use poll::SelectorId;
-use stream::UnixStream;
-use sys;
+use crate::net::{self, SocketAddr};
+use crate::poll::SelectorId;
+use crate::stream::UnixStream;
+use crate::sys;
 
 /// A Unix domain socket server
 ///
 /// This listener can be used to accept new streams connected to a remote
 /// endpoint, through which the `read` and `write` methods can be used to
 /// communicate.
-/// 
+///
 /// # Examples
 ///
 /// ```
@@ -81,10 +81,10 @@ impl UnixListener {
     /// When established, the corresponding `UnixStream` and the remote peer's
     /// address will be returned as `Ok(Some(...))`. If there is no connection
     /// waiting to be accepted, then `Ok(None)` is returned.
-    /// 
+    ///
     /// If an error happens while accepting, `Err` is returned.
     pub fn accept(&self) -> io::Result<Option<(UnixStream, SocketAddr)>> {
-        match try!(self.accept_std()) {
+        match self.accept_std()? {
             Some((stream, addr)) => Ok(Some((UnixStream::from_stream(stream)?, addr))),
             None => Ok(None),
         }
